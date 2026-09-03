@@ -16,3 +16,9 @@
 .externalNativeBuild
 .cxx
 google-services.json
+
+# local APK sideloading helper, contains personal network setup
+/tool/serve_apk.py
+/tool/serve_apk.sh
+__pycache__/
+*.pyc

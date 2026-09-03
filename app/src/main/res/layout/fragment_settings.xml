@@ -27,7 +27,8 @@
             android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:paddingVertical="64dp">
+            android:paddingVertical="64dp"
+            android:paddingBottom="140dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -554,6 +555,32 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:animateLayoutChanges="true">
+
+                    <TextView
+                        style="@style/TextSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingVertical="8dp"
+                        android:text="@string/custom_wallpaper"
+                        android:textColor="?attr/primaryColor" />
+
+                    <TextView
+                        android:id="@+id/customWallpaper"
+                        style="@style/TextSmallBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="4dp"
+                        android:padding="8dp"
+                        android:text="@string/choose" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:animateLayoutChanges="true">
 
@@ -680,6 +707,155 @@
                         android:layout_marginEnd="4dp"
                         android:padding="8dp"
                         android:text="@string/off" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:animateLayoutChanges="true">
+
+                    <TextView
+                        style="@style/TextSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingVertical="8dp"
+                        android:text="@string/font"
+                        android:textColor="?attr/primaryColor" />
+
+                    <TextView
+                        android:id="@+id/fontFamily"
+                        style="@style/TextSmallBold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|bottom"
+                        android:layout_marginEnd="4dp"
+                        android:padding="8dp"
+                        android:text="@string/font_sans" />
+
+                    <!-- font family select layout-->
+                    <LinearLayout
+                        android:id="@+id/fontSelectLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:background="@drawable/rounded_primary_gradient"
+                        android:elevation="8dp"
+                        android:orientation="vertical"
+                        android:outlineAmbientShadowColor="@color/colorPrimaryDark"
+                        android:outlineSpotShadowColor="@color/colorPrimaryDark"
+                        android:paddingHorizontal="8dp"
+                        android:paddingBottom="6dp"
+                        android:visibility="gone"
+                        tools:ignore="UnusedAttribute">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                style="@style/TextSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="8dp"
+                                android:text="@string/font"
+                                android:textColor="?attr/primaryColor" />
+
+                            <TextView
+                                android:id="@+id/fontSelectBack"
+                                style="@style/TextSmallBold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:paddingHorizontal="4dp"
+                                android:paddingVertical="8dp"
+                                android:text="@string/back" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/fontSans"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_sans" />
+
+                        <TextView
+                            android:id="@+id/fontCondensed"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-condensed"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_condensed" />
+
+                        <TextView
+                            android:id="@+id/fontSerif"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_serif" />
+
+                        <TextView
+                            android:id="@+id/fontMono"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_mono" />
+
+                        <TextView
+                            android:id="@+id/fontInter"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_inter" />
+
+                        <TextView
+                            android:id="@+id/fontManrope"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/manrope"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_manrope" />
+
+                        <TextView
+                            android:id="@+id/fontOutfit"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/outfit"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_outfit" />
+
+                        <TextView
+                            android:id="@+id/fontSpaceGrotesk"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/space_grotesk"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_space_grotesk" />
+
+                        <TextView
+                            android:id="@+id/fontLexend"
+                            style="@style/TextSmallBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/lexend"
+                            android:paddingVertical="10dp"
+                            android:text="@string/font_lexend" />
+
+                    </LinearLayout>
+
                 </FrameLayout>
 
                 <FrameLayout
@@ -973,6 +1149,26 @@
                 -->
             </LinearLayout>
 
+                <TextView
+                    android:id="@+id/fanmodNotice"
+                    style="@style/TextSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:text="@string/fanmod_notice" />
+
+                <TextView
+                    android:id="@+id/supportDeveloper"
+                    style="@style/TextSmallBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="@string/support_original_developer" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -1044,6 +1240,23 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <TextView
+        android:id="@+id/settingsBack"
+        style="@style/TextSmallBold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/rounded_rectangle_dark"
+        android:elevation="8dp"
+        android:outlineAmbientShadowColor="@color/colorPrimaryDark"
+        android:outlineSpotShadowColor="@color/colorPrimaryDark"
+        android:paddingHorizontal="36dp"
+        android:paddingVertical="12dp"
+        android:text="@string/back"
+        android:textColor="?attr/primaryColor"
+        tools:ignore="UnusedAttribute" />
 
     <FrameLayout
         android:id="@+id/accessibilityLayout"

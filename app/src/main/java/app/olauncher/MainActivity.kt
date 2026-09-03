@@ -10,14 +10,19 @@ import android.content.pm.ActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -25,6 +30,8 @@ import androidx.navigation.findNavController
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.ActivityMainBinding
+import app.olauncher.helper.applyTextAppearance
+import app.olauncher.helper.fontOverlayStyle
 import app.olauncher.helper.getColorFromAttr
 import app.olauncher.helper.hasBeenDays
 import app.olauncher.helper.hasBeenHours
@@ -39,6 +46,7 @@ import app.olauncher.helper.openUrl
 import app.olauncher.helper.rateApp
 import app.olauncher.helper.resetLauncherViaFakeActivity
 import app.olauncher.helper.setPlainWallpaper
+import app.olauncher.helper.setWallpaperFromUri
 import app.olauncher.helper.shareApp
 import app.olauncher.helper.showLauncherSelector
 import app.olauncher.helper.showToast
@@ -63,21 +71,42 @@ class MainActivity : AppCompatActivity() {
 //            super.onBackPressed()
 //    }
 
+    private var keepScreenOnRecreate = false
+
+    private val pickWallpaperLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let { applyCustomWallpaper(it) }
+    }
+
     override fun attachBaseContext(context: Context) {
         val newConfig = Configuration(context.resources.configuration)
-        newConfig.fontScale = Prefs(context).textSizeScale
+        newConfig.fontScale = 1f
         applyOverrideConfiguration(newConfig)
         super.attachBaseContext(context)
+    }
+
+    // Text size is applied to the views instead of through Configuration.fontScale,
+    // which Android 14+ makes non-linear (see scaleTextSizes).
+    private fun installTextSizeScaling() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentViewCreated(fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?) {
+                    v.applyTextAppearance(prefs.textSizeScale, prefs.boldFont)
+                }
+            },
+            true
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         prefs = Prefs(this)
         if (isEinkDisplay()) prefs.appTheme = AppCompatDelegate.MODE_NIGHT_NO
         AppCompatDelegate.setDefaultNightMode(prefs.appTheme)
+        installTextSizeScaling()
         super.onCreate(savedInstanceState)
-        if (prefs.boldFont) theme.applyStyle(R.style.BoldFontOverlay, true)
+        theme.applyStyle(fontOverlayStyle(prefs.fontFamily, prefs.boldFont), true)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applyTextAppearance(prefs.textSizeScale, prefs.boldFont)
 
         navController = this.findNavController(R.id.nav_host_fragment)
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
@@ -172,8 +201,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         isResumed = false
-        backToHomeScreen()
+        if (keepScreenOnRecreate.not()) backToHomeScreen()
         super.onStop()
+    }
+
+    // Recreating to apply a setting should leave the user where they were,
+    // instead of dropping them on the home screen like leaving the app does.
+    fun recreateKeepingScreen() {
+        keepScreenOnRecreate = true
+        recreate()
     }
 
     override fun onUserLeaveHint() {
@@ -218,6 +254,9 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.checkForMessages.observe(this) {
             checkForMessages()
+        }
+        viewModel.pickCustomWallpaper.observe(this) {
+            pickCustomWallpaper()
         }
         viewModel.showDialog.observe(this) {
             when (it) {
@@ -366,6 +405,26 @@ class MainActivity : AppCompatActivity() {
         binding.messageLayout.visibility = View.GONE
         if (navController.currentDestination?.id != R.id.mainFragment)
             navController.popBackStack(R.id.mainFragment, false)
+    }
+
+    private fun pickCustomWallpaper() {
+        try {
+            pickWallpaperLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            showToast(R.string.wallpaper_not_set)
+        }
+    }
+
+    private fun applyCustomWallpaper(uri: Uri) {
+        // A custom wallpaper and the daily one would fight over the same wallpaper slot.
+        if (prefs.dailyWallpaper) viewModel.cancelWallpaperWorker()
+
+        showToast(R.string.setting_wallpaper)
+        lifecycleScope.launch {
+            val success = setWallpaperFromUri(applicationContext, uri)
+            showToast(if (success) R.string.wallpaper_set else R.string.wallpaper_not_set)
+        }
     }
 
     private fun setPlainWallpaper() {

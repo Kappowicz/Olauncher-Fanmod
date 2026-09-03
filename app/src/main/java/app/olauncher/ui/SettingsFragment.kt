@@ -20,6 +20,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import app.olauncher.BuildConfig
+import app.olauncher.MainActivity
 import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.Constants
@@ -80,6 +81,8 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         populateAppThemeText()
         populateTextSize()
         populateBoldFont()
+        populateFontFamily()
+        showFontSelect(viewModel.fontPanelOpen)
         populateAlignment()
         populateStatusBar()
         populateDateTime()
@@ -120,6 +123,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             R.id.homeAppsNum -> binding.appsNumSelectLayout.visibility = View.VISIBLE
             R.id.dailyWallpaperUrl -> requireContext().openUrl(prefs.dailyWallpaperUrl)
             R.id.dailyWallpaper -> toggleDailyWallpaperUpdate()
+            R.id.customWallpaper -> viewModel.pickCustomWallpaper.call()
             R.id.alignment -> binding.alignmentSelectLayout.visibility = View.VISIBLE
             R.id.alignmentLeft -> viewModel.updateHomeAlignment(Gravity.START)
             R.id.alignmentCenter -> viewModel.updateHomeAlignment(Gravity.CENTER)
@@ -136,6 +140,18 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             R.id.themeSystem -> updateTheme(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             R.id.textSizeValue -> binding.textSizesLayout.visibility = View.VISIBLE
             R.id.boldFont -> toggleBoldFont()
+            R.id.fontFamily -> showFontSelect(true)
+            R.id.fontSelectBack -> showFontSelect(false)
+            R.id.settingsBack -> findNavController().popBackStack()
+            R.id.fontSans -> updateFontFamily(Constants.FontFamily.SANS)
+            R.id.fontCondensed -> updateFontFamily(Constants.FontFamily.CONDENSED)
+            R.id.fontSerif -> updateFontFamily(Constants.FontFamily.SERIF)
+            R.id.fontMono -> updateFontFamily(Constants.FontFamily.MONO)
+            R.id.fontInter -> updateFontFamily(Constants.FontFamily.INTER)
+            R.id.fontManrope -> updateFontFamily(Constants.FontFamily.MANROPE)
+            R.id.fontOutfit -> updateFontFamily(Constants.FontFamily.OUTFIT)
+            R.id.fontSpaceGrotesk -> updateFontFamily(Constants.FontFamily.SPACE_GROTESK)
+            R.id.fontLexend -> updateFontFamily(Constants.FontFamily.LEXEND)
             R.id.actionAccessibility -> openAccessibilityService()
             R.id.closeAccessibility -> toggleAccessibilityVisibility(false)
             R.id.notWorking -> requireContext().openUrl(Constants.URL_DOUBLE_TAP)
@@ -173,7 +189,9 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             }
 
             R.id.twitter -> requireContext().openUrl(Constants.URL_TWITTER_TANUJ)
-            R.id.github -> requireContext().openUrl(Constants.URL_OLAUNCHER_GITHUB)
+            R.id.github -> requireContext().openUrl(Constants.URL_FANMOD_GITHUB)
+            R.id.fanmodNotice -> requireContext().openUrl(Constants.URL_OLAUNCHER_GITHUB)
+            R.id.supportDeveloper -> requireContext().openUrl(Constants.URL_SUPPORT_ORIGINAL_DEVELOPER)
             R.id.privacy -> requireContext().openUrl(Constants.URL_OLAUNCHER_PRIVACY)
             R.id.footer -> {
                 requireContext().openUrl(
@@ -219,6 +237,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         binding.screenTimeOnOff.setOnClickListener(this)
         binding.dailyWallpaperUrl.setOnClickListener(this)
         binding.dailyWallpaper.setOnClickListener(this)
+        binding.customWallpaper.setOnClickListener(this)
         binding.alignment.setOnClickListener(this)
         binding.alignmentLeft.setOnClickListener(this)
         binding.alignmentCenter.setOnClickListener(this)
@@ -240,6 +259,10 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         binding.themeSystem.setOnClickListener(this)
         binding.textSizeValue.setOnClickListener(this)
         binding.boldFont.setOnClickListener(this)
+        binding.fontFamily.setOnClickListener(this)
+        binding.fontSelectBack.setOnClickListener(this)
+        binding.settingsBack.setOnClickListener(this)
+        fontFamilyOptions().forEach { (_, view) -> view.setOnClickListener(this) }
         binding.actionAccessibility.setOnClickListener(this)
         binding.closeAccessibility.setOnClickListener(this)
         binding.notWorking.setOnClickListener(this)
@@ -248,6 +271,8 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         binding.rate.setOnClickListener(this)
         binding.twitter.setOnClickListener(this)
         binding.github.setOnClickListener(this)
+        binding.fanmodNotice.setOnClickListener(this)
+        binding.supportDeveloper.setOnClickListener(this)
         binding.privacy.setOnClickListener(this)
         binding.footer.setOnClickListener(this)
 
@@ -553,10 +578,47 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         binding.textSizeCurrent.text = formatted
     }
 
+    private fun fontFamilyOptions() = listOf(
+        Constants.FontFamily.SANS to binding.fontSans,
+        Constants.FontFamily.CONDENSED to binding.fontCondensed,
+        Constants.FontFamily.SERIF to binding.fontSerif,
+        Constants.FontFamily.MONO to binding.fontMono,
+        Constants.FontFamily.INTER to binding.fontInter,
+        Constants.FontFamily.MANROPE to binding.fontManrope,
+        Constants.FontFamily.OUTFIT to binding.fontOutfit,
+        Constants.FontFamily.SPACE_GROTESK to binding.fontSpaceGrotesk,
+        Constants.FontFamily.LEXEND to binding.fontLexend,
+    )
+
+    private fun showFontSelect(show: Boolean) {
+        viewModel.fontPanelOpen = show
+        binding.fontSelectLayout.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun updateFontFamily(fontFamily: Int) {
+        if (prefs.fontFamily == fontFamily) return
+        prefs.fontFamily = fontFamily
+        populateFontFamily()
+        // The panel stays open so fonts can be compared without reopening settings.
+        (activity as? MainActivity)?.recreateKeepingScreen()
+    }
+
+    private fun populateFontFamily() {
+        val selectedColor = requireContext().getColorFromAttr(R.attr.primaryColor)
+        val unselectedColor = requireContext().getColorFromAttr(R.attr.primaryColorTrans80)
+        binding.fontFamily.text = binding.fontSans.text
+
+        fontFamilyOptions().forEach { (family, view) ->
+            val selected = family == prefs.fontFamily
+            view.setTextColor(if (selected) selectedColor else unselectedColor)
+            if (selected) binding.fontFamily.text = view.text
+        }
+    }
+
     private fun toggleBoldFont() {
         prefs.boldFont = !prefs.boldFont
         populateBoldFont()
-        requireActivity().recreate()
+        (activity as? MainActivity)?.recreateKeepingScreen()
     }
 
     private fun populateBoldFont() {

@@ -38,6 +38,7 @@ class Prefs(context: Context) {
     private val SWIPE_DOWN_ACTION = "SWIPE_DOWN_ACTION"
     private val TEXT_SIZE_SCALE = "TEXT_SIZE_SCALE"
     private val BOLD_FONT = "BOLD_FONT"
+    private val FONT_FAMILY = "FONT_FAMILY"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -162,7 +163,7 @@ class Prefs(context: Context) {
         set(value) = prefs.edit { putString(DAILY_WALLPAPER_URL, value).apply() }
 
     var homeAppsNum: Int
-        get() = prefs.getInt(HOME_APPS_NUM, 4)
+        get() = prefs.getInt(HOME_APPS_NUM, 6)
         set(value) = prefs.edit { putInt(HOME_APPS_NUM, value).apply() }
 
     var homeAlignment: Int
@@ -198,12 +199,16 @@ class Prefs(context: Context) {
         set(value) = prefs.edit { putInt(APP_THEME, value).apply() }
 
     var textSizeScale: Float
-        get() = prefs.getFloat(TEXT_SIZE_SCALE, 1.0f)
+        get() = prefs.getFloat(TEXT_SIZE_SCALE, 1.5f)
         set(value) = prefs.edit { putFloat(TEXT_SIZE_SCALE, value).apply() }
 
     var boldFont: Boolean
-        get() = prefs.getBoolean(BOLD_FONT, false)
+        get() = prefs.getBoolean(BOLD_FONT, true)
         set(value) = prefs.edit { putBoolean(BOLD_FONT, value).apply() }
+
+    var fontFamily: Int
+        get() = prefs.getInt(FONT_FAMILY, Constants.FontFamily.LEXEND)
+        set(value) = prefs.edit { putInt(FONT_FAMILY, value).apply() }
 
     var proMessageShown: Boolean
         get() = prefs.getBoolean(PRO_MESSAGE_SHOWN, false)

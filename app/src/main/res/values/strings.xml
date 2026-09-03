@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Olauncher</string>
+    <string name="app_name" translatable="false">Olauncher Fanmod</string>
     <string name="github" translatable="false">Github</string>
     <string name="lock_layout_description" translatable="false">lock layout description to be used a unique id to lock screen</string>
     <!-- Home button for recents feature disabled -->
@@ -49,6 +49,11 @@
     <string name="swipe_up_for_apps">1. Swipe up for all apps\n2. Long press anywhere for settings</string>
     <string name="apps_on_home_screen">Apps on home screen</string>
     <string name="daily_wallpaper_update">Daily new wallpaper</string>
+    <string name="custom_wallpaper">Your own wallpaper</string>
+    <string name="choose">Choose</string>
+    <string name="setting_wallpaper">Setting wallpaper…</string>
+    <string name="wallpaper_set">Wallpaper set</string>
+    <string name="wallpaper_not_set">Could not set wallpaper</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
     <string name="center">Center</string>
@@ -127,6 +132,19 @@
     <string name="delete">Uninstall</string>
     <string name="text_size">Text size</string>
     <string name="bold_font">Bold font</string>
+    <string name="font">Font</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_condensed">Condensed</string>
+    <string name="font_serif">Serif</string>
+    <string name="font_mono">Mono</string>
+    <string name="font_inter">Inter</string>
+    <string name="font_manrope">Manrope</string>
+    <string name="font_outfit">Outfit</string>
+    <string name="font_space_grotesk">Space Grotesk</string>
+    <string name="font_lexend">Lexend</string>
+    <string name="back">Back</string>
+    <string name="fanmod_notice">Unofficial fanmod of Olauncher by tanujnotes — tap to open the original</string>
+    <string name="support_original_developer">Support the original developer</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="please_turn_on_double_tap_to_unlock">Please turn on double tap to lock</string>

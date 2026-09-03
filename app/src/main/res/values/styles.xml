@@ -47,9 +47,51 @@
 
     </style>
 
-    <!-- Applied over AppTheme when bold font is enabled -->
-    <style name="BoldFontOverlay">
+    <!-- Applied over AppTheme, one per font family and bold font combination -->
+    <style name="FontSansLight">
+        <item name="mainFontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="FontSans">
         <item name="mainFontFamily">sans-serif</item>
+    </style>
+
+    <style name="FontCondensedLight">
+        <item name="mainFontFamily">sans-serif-condensed-light</item>
+    </style>
+
+    <style name="FontCondensed">
+        <item name="mainFontFamily">sans-serif-condensed</item>
+    </style>
+
+    <!-- serif and monospace have no light variant, bold font does not affect them -->
+    <style name="FontSerif">
+        <item name="mainFontFamily">serif</item>
+    </style>
+
+    <style name="FontMono">
+        <item name="mainFontFamily">monospace</item>
+    </style>
+
+    <!-- bundled fonts, single weight each, so bold font does not affect them either -->
+    <style name="FontInter">
+        <item name="mainFontFamily">@font/inter</item>
+    </style>
+
+    <style name="FontManrope">
+        <item name="mainFontFamily">@font/manrope</item>
+    </style>
+
+    <style name="FontOutfit">
+        <item name="mainFontFamily">@font/outfit</item>
+    </style>
+
+    <style name="FontSpaceGrotesk">
+        <item name="mainFontFamily">@font/space_grotesk</item>
+    </style>
+
+    <style name="FontLexend">
+        <item name="mainFontFamily">@font/lexend</item>
     </style>
 
     <style name="WindowAnimationTransition">
@@ -69,6 +111,7 @@
     </style>
 
     <style name="TextDefault" parent="@android:style/TextAppearance.Large">
+        <item name="android:fontFamily">?attr/mainFontFamily</item>
         <item name="android:textColor">@drawable/text_colors_default</item>
         <item name="android:textColorHint">?attr/primaryColorTrans80</item>
         <item name="android:shadowColor">?attr/primaryTextShadowColor</item>

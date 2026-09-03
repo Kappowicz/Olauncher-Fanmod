@@ -38,6 +38,14 @@
     <string name="info">Informacje</string>
     <string name="delete">Usuń</string>
     <string name="text_size">Rozmiar czcionki</string>
+    <string name="font">Czcionka</string>
+    <string name="font_sans">Sans</string>
+    <string name="font_condensed">Wąska</string>
+    <string name="font_serif">Szeryf</string>
+    <string name="font_mono">Mono</string>
+    <string name="back">Wstecz</string>
+    <string name="fanmod_notice">Nieoficjalny fanmod Olauncher autorstwa tanujnotes — dotknij, aby otworzyć oryginał</string>
+    <string name="support_original_developer">Wesprzyj twórcę oryginału</string>
     <string name="enabled">Włączony</string>
     <string name="disabled">Wyłączony</string>
     <string name="please_turn_on_double_tap_to_unlock">Włącz podwójne dotknięcie, aby zablokować</string>
@@ -70,6 +78,11 @@
     <string name="swipe_up_for_apps">1. Przesuń palcem w górę, aby wyświetlić wszystkie aplikacje\n2. Naciśnij i przytrzymaj dowolne miejsce, aby przejść do ustawień</string>
     <string name="apps_on_home_screen">Aplikacje na ekranie głównym</string>
     <string name="daily_wallpaper_update">Codziennie nowa tapeta</string>
+    <string name="custom_wallpaper">Własna tapeta</string>
+    <string name="choose">Wybierz</string>
+    <string name="setting_wallpaper">Ustawiam tapetę…</string>
+    <string name="wallpaper_set">Tapeta ustawiona</string>
+    <string name="wallpaper_not_set">Nie udało się ustawić tapety</string>
     <string name="left">Lewo</string>
     <string name="right">Prawo</string>
     <string name="center">Środek</string>

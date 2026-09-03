@@ -17,6 +17,8 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Point
+import android.graphics.Typeface
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.UserHandle
@@ -29,12 +31,15 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
@@ -414,6 +419,125 @@ suspend fun setWallpaper(appContext: Context, url: String): Boolean {
     }
 }
 
+suspend fun setWallpaperFromUri(appContext: Context, uri: Uri): Boolean {
+    return withContext(Dispatchers.IO) {
+        // Settings can be open in landscape, but the wallpaper should still come out upright.
+        val (screenWidth, screenHeight) = getScreenDimensions(appContext)
+        val (width, height) = if (isTablet(appContext)) Pair(screenWidth, screenHeight)
+        else Pair(minOf(screenWidth, screenHeight), maxOf(screenWidth, screenHeight))
+
+        val decodedBitmap = decodeSampledBitmap(appContext, uri, width, height) ?: return@withContext false
+        val originalImageBitmap = rotateByExif(appContext, uri, decodedBitmap)
+        val scaledBitmap = getWallpaperBitmap(originalImageBitmap, width, height)
+
+        try {
+            val wallpaperManager = WallpaperManager.getInstance(appContext)
+            wallpaperManager.setBitmap(scaledBitmap, null, false, WallpaperManager.FLAG_SYSTEM)
+            wallpaperManager.setBitmap(scaledBitmap, null, false, WallpaperManager.FLAG_LOCK)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        } finally {
+            try {
+                originalImageBitmap.recycle()
+                scaledBitmap.recycle()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        true
+    }
+}
+
+// Wallpapers picked from the gallery can be much larger than the screen, decode them scaled down.
+private fun decodeSampledBitmap(context: Context, uri: Uri, reqWidth: Int, reqHeight: Int): Bitmap? {
+    return try {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+        var sampleSize = 1
+        while (bounds.outWidth / (sampleSize * 2) >= reqWidth && bounds.outHeight / (sampleSize * 2) >= reqHeight)
+            sampleSize *= 2
+
+        val options = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+        context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+// Camera photos carry their orientation in EXIF, which BitmapFactory ignores.
+private fun rotateByExif(context: Context, uri: Uri, bitmap: Bitmap): Bitmap {
+    val degrees = try {
+        val orientation = context.contentResolver.openInputStream(uri)?.use {
+            ExifInterface(it).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        }
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+            else -> return bitmap
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return bitmap
+    }
+
+    return try {
+        val matrix = Matrix().apply { postRotate(degrees) }
+        val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        if (rotated != bitmap) bitmap.recycle()
+        rotated
+    } catch (e: Exception) {
+        e.printStackTrace()
+        bitmap
+    }
+}
+
+// Text size is applied here rather than through Configuration.fontScale, because
+// Android 14+ converts sp to px non-linearly and large text like the home app names
+// stops growing past a scale of about 1.2. Bold is applied here too, so that it works
+// for every font, including the bundled ones that ship with a single weight.
+// The bundled fonts are variable, with a single default instance, so asking for the
+// legacy bold style only gets a faint synthetic bold. Driving the weight axis picks
+// the real bold cut; static fonts fall back to the legacy style.
+private fun TextView.applyBold() {
+    val variableBold = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            setFontVariationSettings("'wght' 700")
+
+    if (variableBold.not()) setTypeface(typeface, Typeface.BOLD)
+}
+
+fun View.applyTextAppearance(scale: Float, bold: Boolean) {
+    if (scale == 1f && bold.not()) return
+    if (getTag(R.id.text_appearance_applied) == true) return
+    setTag(R.id.text_appearance_applied, true)
+
+    if (this is TextView) {
+        if (scale != 1f) setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize * scale)
+        if (bold) applyBold()
+    }
+    if (this is ViewGroup)
+        for (index in 0 until childCount) getChildAt(index).applyTextAppearance(scale, bold)
+}
+
+@StyleRes
+fun fontOverlayStyle(fontFamily: Int, boldFont: Boolean): Int {
+    return when (fontFamily) {
+        Constants.FontFamily.CONDENSED -> if (boldFont) R.style.FontCondensed else R.style.FontCondensedLight
+        Constants.FontFamily.SERIF -> R.style.FontSerif
+        Constants.FontFamily.MONO -> R.style.FontMono
+        Constants.FontFamily.INTER -> R.style.FontInter
+        Constants.FontFamily.MANROPE -> R.style.FontManrope
+        Constants.FontFamily.OUTFIT -> R.style.FontOutfit
+        Constants.FontFamily.SPACE_GROTESK -> R.style.FontSpaceGrotesk
+        Constants.FontFamily.LEXEND -> R.style.FontLexend
+        else -> if (boldFont) R.style.FontSans else R.style.FontSansLight
+    }
+}
+
 fun getScreenDimensions(context: Context): Pair<Int, Int> {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val point = Point()
@@ -623,7 +747,7 @@ fun View.animateAlpha(alpha: Float = 1.0f) {
 
 fun Context.shareApp() {
     val message = getString(R.string.are_you_using_your_phone_or_is_your_phone_using_you) +
-            "\n" + Constants.URL_OLAUNCHER_PLAY_STORE
+            "\n" + Constants.URL_FANMOD_GITHUB
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_TEXT, message)

@@ -18,8 +18,10 @@ import androidx.recyclerview.widget.RecyclerView
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
+import app.olauncher.data.Prefs
 import app.olauncher.databinding.AdapterAppDrawerBinding
 import app.olauncher.databinding.AdapterPrivateSpaceHeaderBinding
+import app.olauncher.helper.applyTextAppearance
 import app.olauncher.helper.hideKeyboard
 import app.olauncher.helper.isSystemApp
 import app.olauncher.helper.showKeyboard
@@ -77,8 +79,16 @@ class AppDrawerAdapter(
         }
     }
 
+    private var textSizeScale = -1f
+    private var boldFont = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
+        if (textSizeScale < 0) Prefs(parent.context).let {
+            textSizeScale = it.textSizeScale
+            boldFont = it.boldFont
+        }
+
+        val holder = when (viewType) {
             VIEW_TYPE_PRIVATE_HEADER -> PrivateSpaceHeaderViewHolder(
                 AdapterPrivateSpaceHeaderBinding.inflate(
                     LayoutInflater.from(parent.context),
@@ -95,6 +105,8 @@ class AppDrawerAdapter(
                 )
             )
         }
+        holder.itemView.applyTextAppearance(textSizeScale, boldFont)
+        return holder
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
