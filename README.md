@@ -17,6 +17,9 @@ Contact the original author: [X/Twitter](https://x.com/tanujnotes) • [Reddit](
 > This is not affiliated with or endorsed by tanujnotes. It installs alongside the original as a
 > separate app (`app.olauncher.fanmod`), so it will never overwrite or interfere with it.
 
+Made by **[Kappowicz](https://github.com/Kappowicz)** as a learning project, built together with
+[Claude Code](https://claude.com/claude-code).
+
 ##
 
 ## Modifications
