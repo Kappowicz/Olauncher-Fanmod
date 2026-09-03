@@ -53,8 +53,34 @@ export ANDROID_HOME=/path/to/android-sdk           # must contain platforms/andr
 ./gradlew assembleDebug
 ```
 
-The APK lands in `app/build/outputs/apk/debug/app-debug.apk`. Install it with
-`adb install -r app/build/outputs/apk/debug/app-debug.apk`.
+The APK lands in `app/build/outputs/apk/debug/app-debug.apk`. Copy it to your phone and open it,
+or install it over adb:
+
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+`./gradlew assembleRelease` works too and gives a much smaller APK (~3 MB instead of ~8 MB,
+because it is minified). Android refuses to install an APK that carries no signature at all, so
+the release build is signed with your local debug key when you have not set up a keystore. That
+is fine for building and sideloading the app for yourself.
+
+To sign with your own key instead — needed if you want to publish APKs that can update each
+other — create a keystore and a `keystore.properties` in the project root:
+
+```bash
+keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias olauncher-fanmod
+```
+
+```properties
+storeFile=my-release-key.jks
+storePassword=...
+keyAlias=olauncher-fanmod
+keyPassword=...
+```
+
+Both the keystore and `keystore.properties` are gitignored. If the file is present the release
+build picks it up automatically.
 
 A few things worth knowing:
 
@@ -62,8 +88,8 @@ A few things worth knowing:
   check that `JAVA_HOME` really points at a JDK 17 (`$JAVA_HOME/bin/java -version`).
 - If the build complains about a missing platform, install it with
   `sdkmanager "platforms;android-36"`.
-- `assembleRelease` produces an **unsigned** APK, because this repository ships no signing
-  config. Use the debug build for testing, or add your own keystore before releasing.
+- Debug keys differ from machine to machine, so an APK built here cannot update an APK someone
+  else built. Uninstall first, or use your own keystore.
 
 ##
 
